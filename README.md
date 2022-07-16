@@ -1,3 +1,3 @@
 ## Touchdown 🛬
 
-Interstate travel informaiton in Nigeria
+Interstate travel information in Nigeria
