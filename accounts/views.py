@@ -47,7 +47,6 @@ class AccountsList(APIView):
 
             try:
                 email = send_email(**email_payload)
-                print(email.status_code, email.json())
                 if email.status_code == 200:
                     response.update(
                         {"message": "User registered. Verification email is on its way."}
@@ -99,18 +98,17 @@ class VerifyView(APIView):
 
             try:
                 email = send_email(**email_payload)
-                print(email.status_code, email.json())
                 if email.status_code == 200:
                     response.update(
                         {"message": "Verification email is on its way."}
                     )
+                    return Response(response, status=status.HTTP_200_OK)
                 else:
                     response.update(
                         {"message": "Failed to send verification email."}
                     )
+                    return Response(response, status=status.HTTP_200_OK)
             except:
                 # log critical failure
                 raise
-                
-            return Response(response, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
