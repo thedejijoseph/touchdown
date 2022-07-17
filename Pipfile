@@ -12,6 +12,7 @@ whitenoise = "*"
 djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
+mailjet-rest = "*"
 
 [dev-packages]
 ipython = "*"

@@ -10,6 +10,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from accounts.util import make_auth_code, make_default_username
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     username_validator = ASCIIUsernameValidator()
@@ -18,6 +19,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         _("username"),
         max_length=150,
         unique=True,
+        default=make_default_username,
         help_text=_("Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only."),
         validators=[username_validator],
         error_messages={
@@ -45,7 +47,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             "Designates whether this user should be treated as active. Unselect this instead of deleting accounts."
         ),
     )
-    created_at = models.DateTimeField(_("created_at"), default=timezone.now)
+    created_at = models.DateTimeField(_("created at"), default=timezone.now)
+    updated_at = models.DateTimeField(_("updated at"), default=timezone.now)
+    email_verified =  models.BooleanField(
+        _("email verified"),
+        default=False,
+        help_text=_(
+            "Designates whether this user has verified their email address"
+        )
+    )
 
     objects = UserManager()
 
@@ -75,3 +85,13 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+class AuthCode(models.Model):
+    account = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    auth_code = models.CharField(
+        _("auth code"), 
+        default=make_auth_code,
+        max_length=5,
+        help_text=_("Email verification code")
+    )
+    created_at = models.DateTimeField(_("created_at"), default=timezone.now)

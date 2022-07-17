@@ -1,0 +1,8 @@
+Verify your email address
+
+Hi there 👋
+
+Great you're using 'Touchdown' 🛬
+Input the code below to verify your email address.
+
+{{ auth_code }}

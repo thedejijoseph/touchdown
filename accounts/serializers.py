@@ -7,3 +7,6 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['email']
+
+class VerifyAccountSerializer(serializers.Serializer):
+    email = serializers.EmailField()
