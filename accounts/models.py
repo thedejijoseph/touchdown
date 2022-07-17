@@ -1,4 +1,6 @@
 
+import uuid
+
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.validators import ASCIIUsernameValidator
@@ -43,7 +45,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
             "Designates whether this user should be treated as active. Unselect this instead of deleting accounts."
         ),
     )
-    date_joined = models.DateTimeField(_("date joined"), default=timezone.now)
+    created_at = models.DateTimeField(_("created_at"), default=timezone.now)
 
     objects = UserManager()
 

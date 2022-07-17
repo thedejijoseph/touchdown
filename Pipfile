@@ -10,6 +10,8 @@ psycopg2-binary = "*"
 gunicorn = "*"
 whitenoise = "*"
 djangorestframework = "*"
+markdown = "*"
+django-filter = "*"
 
 [dev-packages]
 ipython = "*"
