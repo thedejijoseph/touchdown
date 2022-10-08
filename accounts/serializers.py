@@ -10,3 +10,7 @@ class AccountSerializer(serializers.ModelSerializer):
 
 class VerifyAccountSerializer(serializers.Serializer):
     email = serializers.EmailField()
+
+class AuthenticateAccountSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    auth_code = serializers.CharField()

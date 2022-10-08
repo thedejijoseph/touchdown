@@ -8,7 +8,7 @@ from rest_framework import status
 
 
 from accounts.models import CustomUser, AuthCode
-from accounts.serializers import AccountSerializer, VerifyAccountSerializer
+from accounts.serializers import AccountSerializer, VerifyAccountSerializer, AuthenticateAccountSerializer
 
 from accounts.util import make_auth_code
 from accounts.util import render_email_verification_template_html, render_email_verification_template_text
@@ -112,3 +112,36 @@ class VerifyView(APIView):
                 # log critical failure
                 raise
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AuthenticateAccountView(APIView):
+    """
+    Authenticate created accounts.
+    """
+
+    def post(self, request, format=None):
+        serializer = AuthenticateAccountSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                account = CustomUser.objects.get(email=serializer.validated_data['email'])
+            except:
+                response = [
+                    {
+                        "email": "A user with that email address does not exist."
+                    }
+                ]
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+            try:
+                received_auth_code = serializer.validated_data['auth_code']
+
+                auth_code_object = AuthCode.objects.get(account=account)
+                stored_auth_code = auth_code_object[0].auth_code
+                
+                # verify auth codes and creat auth token
+            except:
+                response = [
+                    {
+                        "email": "Authorization has not been created for this account. Request verification email."
+                    }
+                ]
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
