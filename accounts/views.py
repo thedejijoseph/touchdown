@@ -139,7 +139,7 @@ class AuthenticateAccountView(ObtainAuthToken):
                 stored_auth_code = auth_code_object.auth_code
                 
                 if received_auth_code == stored_auth_code:
-                    auth_token, created = Token.objects.get_or_create(user=account)
+                    auth_token, _ = Token.objects.get_or_create(user=account)
                     response = {
                         "success": True,
                         "token": auth_token.key,

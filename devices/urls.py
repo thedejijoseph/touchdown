@@ -4,7 +4,8 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from devices import views
 
 urlpatterns = [
-    path('info', views.DeviceInfoView.as_view()),
+    path('', views.DevicesOnAccountView.as_view()),
+    path('<uuid:device_id>', views.DeviceInfoView.as_view()),
     path('location', views.DeviceLocationView.as_view()),
 ]
 
