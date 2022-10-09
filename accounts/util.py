@@ -4,6 +4,8 @@ import string
 
 from django.template import loader
 
+from rest_framework.authentication import TokenAuthentication
+
 def make_auth_code():
     random_selection = random.choices(string.ascii_uppercase, k=5)
     code = "".join(random_selection)
@@ -33,3 +35,6 @@ def render_email_verification_template_html(context: dict):
     content = loaded_template.render(context)
 
     return content
+
+class BearerTokenAuthentication(TokenAuthentication):
+    keyword = 'Bearer'

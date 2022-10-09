@@ -1,16 +1,17 @@
 
-from django.template import loader
-from django.http import HttpResponse
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.permissions import IsAuthenticated
 
 from accounts.models import CustomUser, AuthCode
-from accounts.serializers import AccountSerializer, VerifyAccountSerializer
+from accounts.serializers import AccountSerializer, VerifyAccountSerializer, AuthenticateAccountSerializer
 
-from accounts.util import make_auth_code
+from accounts.util import BearerTokenAuthentication
 from accounts.util import render_email_verification_template_html, render_email_verification_template_text
 from accounts.mailer import send_email
 
@@ -112,3 +113,65 @@ class VerifyView(APIView):
                 # log critical failure
                 raise
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class AuthenticateAccountView(ObtainAuthToken):
+    """
+    Authenticate created accounts.
+    """
+
+    def post(self, request, format=None):
+        serializer = AuthenticateAccountSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                account = CustomUser.objects.get(email=serializer.validated_data['email'])
+            except:
+                response = [
+                    {
+                        "email": "A user with that email address does not exist."
+                    }
+                ]
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+                
+            try:
+                received_auth_code = serializer.validated_data['auth_code']
+
+                auth_code_object = AuthCode.objects.get(account=account)
+                stored_auth_code = auth_code_object.auth_code
+                
+                if received_auth_code == stored_auth_code:
+                    auth_token, _ = Token.objects.get_or_create(user=account)
+                    response = {
+                        "success": True,
+                        "token": auth_token.key,
+                        "message": "Authenticated successfully"
+                    }
+                    return Response(response, status=status.HTTP_200_OK)
+                else:
+                    response = [
+                    {
+                        "auth_code": "Invalid authorization code. Request verification email."
+                    }
+                ]
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+            except:
+                response = [
+                    {
+                        "email": "Authorization has not been created for this account. Request verification email."
+                    }
+                ]
+                return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+        else:
+            # invalid request data
+            response = serializer.errors
+            return Response(response, status=status.HTTP_400_BAD_REQUEST)
+
+class AccountView(APIView):
+    authentication_classes = [BearerTokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None):
+        response = {
+            "email": request.user.email,
+        }
+        return Response(response, status=status.HTTP_200_OK)
